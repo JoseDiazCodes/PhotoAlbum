@@ -69,6 +69,32 @@ public class PhotoAlbumImpl implements IPhotoAlbum {
 }
 ```
 
+### How It All Works Together
+
+- Shapes are stored in a Map for quick lookup by name
+- Snapshots are kept in order in a List 
+
+>When you take a snapshot:
+Creates copies of all current shapes
+Timestamps the moment
+Stores everything in a new Snapshot object
+Adds it to the history list
+
+
+>When shapes change:
+Original shapes update in the Map
+Old snapshots keep their copies unchanged
+New snapshots see the current state
+
+
+
+>This lets you:
+Find shapes quickly by name (using Map)
+Keep track of changes over time
+Go back to any previous state
+Never accidentally change history
+---
+
 ## Why It Works This Way
 - Interfaces make it easy to add new types of shapes later
 - Snapshots make copies so you can't accidentally change history
@@ -88,4 +114,4 @@ Makes sure:
 - Snapshots save the right information
 - Invalid operations are caught
 - History is preserved correctly
-- Output looks right# PhotoAlbum
+- Output looks right
