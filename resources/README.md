@@ -22,7 +22,7 @@ A model for a photo album application that works with 2D shapes. Lets you create
 - An album can have 0 to many snapshots (0..*)
 - A snapshot can contain 0 to many shapes (0..*)
 
-![img.png](uml.png)
+![img.png](../uml.png)
 ---
 
 ## Quick Example

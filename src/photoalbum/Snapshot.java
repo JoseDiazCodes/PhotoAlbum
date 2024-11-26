@@ -5,6 +5,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import photoalbum.model.IShape;
+import photoalbum.model.ISnapshot;
+
 /**
  * A concrete implementation of ISnapshot that captures and stores the state of all shapes
  * at a specific moment in time. Ensures shape states remain immutable once captured.

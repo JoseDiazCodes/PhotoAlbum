@@ -1,5 +1,7 @@
 package photoalbum;
 
+import photoalbum.model.IShape;
+
 /**
  * An abstract base class for 2D shapes that provides common shape functionality. This
  * class implements position, color, and identity behaviors shared by all shapes.

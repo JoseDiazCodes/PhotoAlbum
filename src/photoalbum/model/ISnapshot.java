@@ -1,4 +1,4 @@
-package photoalbum;
+package photoalbum.model;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package photoalbum;
+package photoalbum.model;
 
 /**
  * Defines the core functionality of a shape in the photo album. Shapes are identified by

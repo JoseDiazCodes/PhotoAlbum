@@ -1,10 +1,14 @@
-package photoalbum;
+package photoalbum.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import photoalbum.Oval;
+import photoalbum.Rectangle;
+import photoalbum.Snapshot;
 
 /**
  * A concrete implementation of the IPhotoAlbum interface. This class manages a collection
