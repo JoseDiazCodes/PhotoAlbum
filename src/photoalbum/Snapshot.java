@@ -1,12 +1,14 @@
 package photoalbum;
 
+import photoalbum.model.IShape;
+import photoalbum.model.ISnapshot;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import photoalbum.model.IShape;
-import photoalbum.model.ISnapshot;
+
 
 /**
  * A concrete implementation of ISnapshot that captures and stores the state of all shapes
@@ -50,16 +52,24 @@ public class Snapshot implements ISnapshot {
   }
 
   @Override
-  public String getId() { return id; }
+  public String getId() {
+    return id;
+  }
 
   @Override
-  public String getTimestamp() { return timestamp; }
+  public String getTimestamp() {
+    return timestamp;
+  }
 
   @Override
-  public String getDescription() { return description; }
+  public String getDescription() {
+    return description;
+  }
 
   @Override
-  public List<IShape> getShapes() { return shapes; }
+  public List<IShape> getShapes() {
+    return shapes;
+  }
 
   @Override
   public String toString() {

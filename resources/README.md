@@ -36,7 +36,7 @@ Two ways to look at your snapshots:
 - Print-friendly layout
 
 ##  UML Diagram
-![img.png](../uml.png)
+![img.png](uml.png)
 
 ## Quick Start
 

@@ -51,8 +51,8 @@ public class Rectangle extends AbstractShape {
 
   @Override
   public String toString() {
-    return String.format("Name: %s\nType: rectangle\n" +
-                    "Min corner: (%.1f,%.1f), Width: %.1f, Height: %.1f, Color: %s",
+    return String.format("Name: %s\nType: rectangle\n"
+                    + "Min corner: (%.1f,%.1f), Width: %.1f, Height: %.1f, Color: %s",
             getName(), x, y, width, height, getColorString());
   }
 }

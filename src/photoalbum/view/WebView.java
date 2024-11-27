@@ -135,8 +135,8 @@ public class WebView implements IPhotoAlbumView {
     String name = shape.getName().toLowerCase();
 
     // Background elements (sky, ground, canvas backgrounds)
-    if (name.contains("background") || name.contains("sky") ||
-            name.contains("ground") || name.equals("rect1")) {
+    if (name.contains("background") || name.contains("sky")
+            || name.contains("ground") || name.equals("rect1")) {
       return 0;
     }
 
@@ -146,8 +146,8 @@ public class WebView implements IPhotoAlbumView {
     }
 
     // Main structures (buildings, hoops)
-    if (name.startsWith("b") || name.contains("hoop") ||
-            name.contains("board") || name.contains("rim")) {
+    if (name.startsWith("b") || name.contains("hoop")
+            || name.contains("board") || name.contains("rim")) {
       return 2;
     }
 
@@ -157,8 +157,8 @@ public class WebView implements IPhotoAlbumView {
     }
 
     // Moving objects and decorations
-    if (name.contains("ball") || name.equals("moon") ||
-            name.startsWith("circle")) {
+    if (name.contains("ball") || name.equals("moon")
+            || name.startsWith("circle")) {
       return 4;
     }
 
@@ -204,7 +204,7 @@ public class WebView implements IPhotoAlbumView {
             coords.indexOf(",", coords.indexOf("Height:"))).trim());
     String color = getColor(shape);
 
-    html.append(String.format("<rect x='%f' y='%f' width='%f' height='%f' fill='%s' />\n",
+    html.append(String.format("<rect x='%.2f' y='%.2f' width='%.2f' height='%.2f' fill='%s' />\n",
             x, y, width, height, color));
   }
 
@@ -227,7 +227,7 @@ public class WebView implements IPhotoAlbumView {
             coords.indexOf(",", coords.indexOf("Y radius:"))).trim());
     String color = getColor(shape);
 
-    html.append(String.format("<ellipse cx='%f' cy='%f' rx='%f' ry='%f' fill='%s' />\n",
+    html.append(String.format("<ellipse cx='%.2f' cy='%.2f' rx='%.2f' ry='%.2f' fill='%s' />\n",
             cx, cy, rx, ry, color));
   }
 

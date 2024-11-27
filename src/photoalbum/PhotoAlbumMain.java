@@ -1,14 +1,31 @@
 package photoalbum;
 
+import photoalbum.controller.IPhotoAlbumController;
+import photoalbum.controller.PhotoAlbumController;
 import photoalbum.model.IPhotoAlbum;
 import photoalbum.model.PhotoAlbumImpl;
 import photoalbum.view.IPhotoAlbumView;
 import photoalbum.view.SwingView;
 import photoalbum.view.WebView;
-import photoalbum.controller.IPhotoAlbumController;
-import photoalbum.controller.PhotoAlbumController;
 
+/**
+ * The main entry point for our photo album application. Handles command line arguments
+ * and sets up the app to either show a window or create a web page.
+ */
 public class PhotoAlbumMain {
+
+  /**
+   * Starts up the photo album based on command line arguments. Required arguments
+   * are the input file (-in) and view type (-view). For web view, you also need
+   * to specify the output file (-out).
+   * Examples:
+   * For graphical view:
+   *    -in buildings.txt -view graphical 800 800
+   * For web view:
+   *    -in buildings.txt -view web -out index.html
+   *
+   * @param args Command line arguments with input file, view type, and options
+   */
   public static void main(String[] args) {
     int width = 1000;
     int height = 1000;
@@ -43,8 +60,8 @@ public class PhotoAlbumMain {
 
     // Validate required arguments
     if (inputFile == null || viewType == null) {
-      System.err.println("" +
-              "Missing required arguments. Usage: -in <file> -view <type> "
+      System.err.println(""
+              + "Missing required arguments. Usage: -in <file> -view <type> "
               + "[-out <file>] [width height]");
       System.exit(1);
     }
