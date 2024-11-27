@@ -1,117 +1,166 @@
-# Shape Photo Album Model
+# Photo Album Viewer
 
-A model for a photo album application that works with 2D shapes. Lets you create shapes, move them around, change their colors, and take snapshots to save their state at different points in time.
+A simple but powerful application for creating and viewing collections of 2D shapes. Create shapes, move them around, and take snapshots to preserve different arrangements. View your snapshots either in an interactive window or as a web page.
 
-## Main Components
+## Core Features
 
-### Core Classes
-- `IPhotoAlbum`: The main interface you'll work with. Create shapes, move them, take snapshots.
-- `IShape`: Everything a shape needs to do - move, resize, change color.
-- `ISnapshot`: Takes a picture of all shapes at a moment in time. Like hitting pause.
+- Create rectangles and ovals with custom colors and sizes
+- Move and resize shapes freely
+- Take snapshots to save shape arrangements
+- View snapshots in a graphical window or web browser
+- Navigate through snapshots with Previous/Next buttons
+- Jump directly to any snapshot you want
 
-### The Building Blocks
-- `PhotoAlbumImpl`: Does the heavy lifting. Keeps track of shapes and snapshots.
-- `AbstractShape`: Parent class for all shapes. Handles common stuff like color and position.
-- `Rectangle`: A shape with width and height, positioned by its corner.
-- `Oval`: A shape with x and y radii, positioned by its center.
-- `Snapshot`: Takes a picture of shapes and keeps it safe from changes.
+## Project Structure
 
-## UML / Design Choices
+### Model
+The heart of the application that handles shapes and snapshots:
+- `IPhotoAlbum`: Main interface for working with the album
+- `IShape`: Base interface for all shapes (rectangles, ovals)
+- `ISnapshot`: Interface for capturing shape states
+- `PhotoAlbumImpl`: Main album implementation
 
-- An album can have 0 to many shapes (0..*)
-- An album can have 0 to many snapshots (0..*)
-- A snapshot can contain 0 to many shapes (0..*)
+### Views
+Two ways to look at your snapshots:
 
+**Graphical View (SwingView)**
+- Interactive window for viewing snapshots
+- Navigation buttons (Previous/Next)
+- Jump to any snapshot from a dropdown
+- Shows snapshot info and descriptions
+
+**Web View**
+- Generates a static HTML page
+- All snapshots visible at once
+- SVG graphics for crisp rendering
+- Print-friendly layout
+
+##  UML Diagram
 ![img.png](../uml.png)
----
 
-## Quick Example
+## Quick Start
+
 ```java
-// Create an album and add some shapes
+// Create your photo album
 IPhotoAlbum album = new PhotoAlbumImpl();
 
-// Make a red rectangle
-album.addShape("R1", "rectangle");
-IShape rect = album.getShape("R1");
+// Add a shape
+album.addShape("rect1", "rectangle");
+IShape rect = album.getShape("rect1");
+
+// Style it
 rect.move(100, 100);
 rect.resize(50, 30);
-rect.setColor(1.0, 0.0, 0.0);
+rect.setColor(1.0, 0.0, 0.0);  // Bright red
 
-// Take some snapshots as you go
-String id1 = album.takeSnapshot("Starting position");
-rect.move(200, 200);
-String id2 = album.takeSnapshot("Moved rectangle");
+// Take some snapshots
+album.takeSnapshot("My first shape");
+rect.move(200, 200);  // Move it around
+album.takeSnapshot("Shape in new position");
+
+// View it!
+IPhotoAlbumView view = new SwingView(album, 800, 600);
+view.display();
 ```
 
-## Behind the Scenes
-```java
-public class PhotoAlbumImpl implements IPhotoAlbum {
-    private final Map<String, IShape> shapes = new HashMap<>();
-    private final List<ISnapshot> snapshots = new ArrayList<>();
+## Running the Application
 
-    public void addShape(String name, String type) {
-        if (shapes.containsKey(name)) {
-            throw new IllegalArgumentException("Already have a shape named " + name);
-        }
-        IShape shape = switch (type.toLowerCase()) {
-            case "rectangle" -> new Rectangle(name, 0, 0, 50, 50);
-            case "oval" -> new Oval(name, 0, 0, 25, 25);
-            default -> throw new IllegalArgumentException("Don't know how to make a " + type);
-        };
-        shapes.put(name, shape);
-    }
-
-    public String takeSnapshot(String description) {
-        ISnapshot snapshot = new Snapshot(new ArrayList<>(shapes.values()), description);
-        snapshots.add(snapshot);
-        return snapshot.getId();
-    }
-}
+### Directory Setup
+First, navigate to the jar location:
+```bash
+cd out/artifacts/shape_photoalbum_jar
 ```
 
-### How It All Works Together
+### Command Formats
 
-- Shapes are stored in a Map for quick lookup by name
-- Snapshots are kept in order in a List 
+**Graphical View:**
+```bash
+java -jar shape_draw.jar -in <input-file> -view graphical <width> <height>
+```
 
->When you take a snapshot:
-Creates copies of all current shapes
-Timestamps the moment
-Stores everything in a new Snapshot object
-Adds it to the history list
+**Web View:**
+```bash
+java -jar shape_draw.jar -in <input-file> -view web -out <output-file>
+```
 
+### Complete Examples
 
->When shapes change:
-Original shapes update in the Map
-Old snapshots keep their copies unchanged
-New snapshots see the current state
+View buildings in graphical window:
+```bash
+cd out/artifacts/shape_photoalbum_jar
+java -jar shape_draw.jar -in buildings.txt -view graphical 800 800
+```
 
+Generate HTML output:
+```bash
+cd out/artifacts/shape_photoalbum_jar
+java -jar shape_draw.jar -in buildings.txt -view web -out buildings.html
+```
 
+View basketball animation:
+```bash
+cd out/artifacts/shape_photoalbum_jar
+java -jar shape_draw.jar -in hoops.txt -view graphical 1000 1000
+```
 
->This lets you:
-Find shapes quickly by name (using Map)
-Keep track of changes over time
-Go back to any previous state
-Never accidentally change history
----
+Create web page from demo:
+```bash
+cd out/artifacts/shape_photoalbum_jar
+java -jar shape_draw.jar -in demo_input.txt -view web -out out.html
+```
 
-## Why It Works This Way
-- Interfaces make it easy to add new types of shapes later
-- Snapshots make copies so you can't accidentally change history
-- Base shape class keeps common code in one place
-- Factory method keeps shape creation organized
-- Everything's tested to make sure it works as expected
+## Under the Hood
 
-## Error Checking
-- Won't let you create two shapes with the same name
-- Checks that colors are valid (between 0 and 1)
-- Makes sure shapes have valid sizes
-- Gives helpful error messages when something's wrong
+The album keeps your shapes in a map for quick access by name. When you take a snapshot, it makes copies of all shapes to preserve their exact state at that moment. This means you can freely modify shapes without worrying about messing up your history.
+
+Each snapshot remembers:
+- Which shapes existed
+- Where they were
+- What they looked like
+- When it was taken
+- Your description (if any)
+
+The views can only look at the data - they can't change anything. This keeps your shape history safe and consistent.
+
+## Common Issues & Solutions
+
+- "Shape already exists": Each shape needs a unique name
+- "Invalid color": Color values must be between 0 and 1
+- "Invalid size": Shape dimensions must be positive
+- Navigation errors: You'll get a message if you try to go past the first/last snapshot
+
+## Technical Details
+
+The model uses:
+- HashMap for shape storage (fast lookups)
+- ArrayList for snapshots (maintains order)
+- Deep copies for snapshot preservation
+- Factory pattern for shape creation
+
+Views handle:
+- Custom shape rendering
+- Proper layering (background first, details last)
+- Event-driven navigation
+- Error handling and user feedback
+
+## What's Next?
+
+Some ideas for future enhancements:
+- More shape types (triangles, stars)
+- Shape grouping
+- Animation between snapshots
+- Custom shape colors using a color picker
+- Export/import album data
 
 ## Testing
-Makes sure:
-- Shapes are created and move correctly
-- Snapshots save the right information
-- Invalid operations are caught
-- History is preserved correctly
-- Output looks right
+
+We've got thorough tests covering:
+- Shape creation and modification
+- Snapshot operations
+- Error handling
+- View rendering
+- Navigation features
+
+Every feature has multiple tests to ensure it works reliably.
+
+Let me know if you'd like me to explain any part in more detail!

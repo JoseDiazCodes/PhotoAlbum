@@ -12,64 +12,22 @@ import java.util.regex.Pattern;
 import java.util.ArrayList;
 import java.util.Collections;
 
-/**
- * A graphical view implementation for the photo album application using Swing. This class
- * provides a window-based interface for viewing and navigating through snapshots of shapes.
- */
 public class SwingView extends JFrame implements IPhotoAlbumView {
-
-  /**
-   * The photo album model containing all shapes and snapshots to be displayed. This model
-   * provides the data that will be rendered in the view.
-   */
   private final IPhotoAlbum model;
-
-  /**
-   * The width of the drawing canvas in pixels. This determines how much horizontal space
-   * is available for rendering shapes.
-   */
   private final int width;
-
-  /**
-   * The height of the drawing canvas in pixels. This determines how much vertical space
-   * is available for rendering shapes.
-   */
   private final int height;
-
-  /**
-   * Tracks the currently displayed snapshot's index in the album's snapshot list. This
-   * enables navigation between different snapshots.
-   */
   private int currentSnapshotIndex = 0;
-
-  /**
-   * The panel responsible for rendering shapes from the current snapshot. This panel
-   * handles all drawing operations.
-   */
   private final DrawingPanel drawingPanel;
-
-  /**
-   * The panel responsible for rendering shapes from the current snapshot. This panel
-   * handles all drawing operations.
-   */
   private final JLabel snapshotInfo;
-
-  /**
-   * Creates a new SwingView with the specified model and dimensions.
-   *
-   * @param model The photo album model containing shapes and snapshots to display
-   * @param width The width of the drawing canvas in pixels
-   * @param height The height of the drawing canvas in pixels
-   */
 
   public SwingView(IPhotoAlbum model, int width, int height) {
     this.model = model;
     this.width = width;
     this.height = height;
 
-    setTitle("Photo Album");
+    setTitle("Photo Album Viewer");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setLayout(new BorderLayout());
+    setLayout(new BorderLayout(10, 10));
 
     drawingPanel = new DrawingPanel();
     snapshotInfo = new JLabel();
@@ -78,59 +36,107 @@ public class SwingView extends JFrame implements IPhotoAlbumView {
     setupUI();
   }
 
-  /**
-   * Sets up the user interface components including navigation buttons and layout. This
-   * method initializes all UI elements and arranges them in the window.
-   */
   private void setupUI() {
-    JPanel controlPanel = new JPanel();
-    JButton prevButton = new JButton("Previous");
-    JButton nextButton = new JButton("Next");
+    // Create info panel at top
+    JPanel infoPanel = new JPanel(new BorderLayout());
+    infoPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    infoPanel.add(snapshotInfo, BorderLayout.CENTER);
 
-    prevButton.addActionListener(e -> navigateSnapshot(-1));
-    nextButton.addActionListener(e -> navigateSnapshot(1));
+    // Create navigation panel at bottom
+    JPanel navigationPanel = createNavigationPanel();
 
-    controlPanel.add(prevButton);
-    controlPanel.add(nextButton);
-
+    // Add panels to frame
+    add(infoPanel, BorderLayout.NORTH);
     add(drawingPanel, BorderLayout.CENTER);
-    add(controlPanel, BorderLayout.SOUTH);
-    add(snapshotInfo, BorderLayout.NORTH);
+    add(navigationPanel, BorderLayout.SOUTH);
 
     pack();
     setLocationRelativeTo(null);
   }
 
-  /**
-   * Navigates to a different snapshot based on the specified direction.
-   *
-   * @param direction -1 for previous snapshot, 1 for next snapshot
-   */
-  private void navigateSnapshot(int direction) {
-    int newIndex = currentSnapshotIndex + direction;
-    if (newIndex >= 0 && newIndex < model.getSnapshots().size()) {
-      currentSnapshotIndex = newIndex;
+  private JPanel createNavigationPanel() {
+    JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+    panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+    JButton prevButton = new JButton("Previous");
+    JButton nextButton = new JButton("Next");
+    JButton selectButton = new JButton("Select Snapshot");
+
+    prevButton.addActionListener(e -> showPreviousSnapshot());
+    nextButton.addActionListener(e -> showNextSnapshot());
+    selectButton.addActionListener(e -> showSnapshotSelector());
+
+    panel.add(prevButton);
+    panel.add(selectButton);
+    panel.add(nextButton);
+
+    return panel;
+  }
+
+  private void showPreviousSnapshot() {
+    if (currentSnapshotIndex > 0) {
+      currentSnapshotIndex--;
       updateView();
+    } else {
+      showMessage("You are at the first snapshot.");
     }
   }
 
-  /**
-   * A custom panel that handles the rendering of shapes from the current snapshot. This
-   * panel manages all drawing operations and shape layering.
-   */
-  private class DrawingPanel extends JPanel {
+  private void showNextSnapshot() {
+    if (currentSnapshotIndex < model.getSnapshots().size() - 1) {
+      currentSnapshotIndex++;
+      updateView();
+    } else {
+      showMessage("You are at the last snapshot.");
+    }
+  }
 
-    /**
-     * A pattern for extracting numeric values from shape coordinate strings. This
-     * pattern matches both integer and decimal numbers.
-     */
+  private void showSnapshotSelector() {
+    List<ISnapshot> snapshots = model.getSnapshots();
+    if (snapshots.isEmpty()) {
+      showMessage("No snapshots available.");
+      return;
+    }
+
+    String[] options = new String[snapshots.size()];
+    for (int i = 0; i < snapshots.size(); i++) {
+      ISnapshot snapshot = snapshots.get(i);
+      String description = snapshot.getDescription().isEmpty() ?
+              "Snapshot " + (i + 1) : snapshot.getDescription();
+      options[i] = String.format("%d: %s", i + 1, description);
+    }
+
+    String selected = (String) JOptionPane.showInputDialog(
+            this,
+            "Choose a snapshot to view:",
+            "Select Snapshot",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[currentSnapshotIndex]
+    );
+
+    if (selected != null) {
+      int selectedIndex = Integer.parseInt(selected.split(":")[0]) - 1;
+      if (selectedIndex != currentSnapshotIndex) {
+        currentSnapshotIndex = selectedIndex;
+        updateView();
+      }
+    }
+  }
+
+  private void showMessage(String message) {
+    JOptionPane.showMessageDialog(
+            this,
+            message,
+            "Navigation",
+            JOptionPane.INFORMATION_MESSAGE
+    );
+  }
+
+  private class DrawingPanel extends JPanel {
     private final Pattern numberPattern = Pattern.compile("[-+]?\\d*\\.?\\d+");
 
-    /**
-     * Renders the current snapshot's shapes in the correct layering order.
-     *
-     * @param g The graphics context used for drawing
-     */
     @Override
     protected void paintComponent(Graphics g) {
       super.paintComponent(g);
@@ -141,72 +147,50 @@ public class SwingView extends JFrame implements IPhotoAlbumView {
       if (!snapshots.isEmpty() && currentSnapshotIndex < snapshots.size()) {
         ISnapshot snapshot = snapshots.get(currentSnapshotIndex);
 
-        // Sort shapes by rendering order
         List<IShape> sortedShapes = new ArrayList<>(snapshot.getShapes());
         Collections.sort(sortedShapes, (a, b) -> getRenderingPriority(a) - getRenderingPriority(b));
 
-        // Draw all shapes in order
         for (IShape shape : sortedShapes) {
           drawShape(g2d, shape);
         }
       }
     }
 
-    /**
-     * Determines the rendering priority of a shape based on its type and name. Lower
-     * numbers are rendered first, creating proper layering.
-     *
-     * @param shape The shape whose rendering priority is being determined
-     * @return An integer priority value, where 0 is rendered first
-     */
     private int getRenderingPriority(IShape shape) {
       String name = shape.getName().toLowerCase();
 
-      // Background elements first
       if (name.contains("background") || name.contains("sky") ||
               name.contains("ground") || name.equals("rect1")) {
         return 0;
       }
-      // Building/court elements second
       if (name.startsWith("b") || name.contains("court")) {
         return 1;
       }
-      // Windows and details third
       if (name.startsWith("window")) {
         return 2;
       }
-      // Special elements last (moon, decorations)
       if (name.contains("moon") || name.contains("ball")) {
         return 3;
       }
-      // Default priority
       return 4;
     }
 
-    /**
-     * Draws a single shape using the provided graphics context.
-     *
-     * @param g2d The graphics context used for drawing
-     * @param shape The shape to be drawn
-     */
     private void drawShape(Graphics2D g2d, IShape shape) {
       try {
-        // Set color
         String[] rgb = extractColor(shape);
         float r = Float.parseFloat(rgb[0].trim());
         float g = Float.parseFloat(rgb[1].trim());
         float b = Float.parseFloat(rgb[2].trim());
         g2d.setColor(new Color(r, g, b));
 
-        // Get shape data
         List<Double> coords = extractShapeData(shape);
         if (coords.size() >= 4) {
           if (shape.getType().equals("rectangle")) {
             g2d.fillRect(
-                    (int)coords.get(0).doubleValue(),  // x
-                    (int)coords.get(1).doubleValue(),  // y
-                    (int)coords.get(2).doubleValue(),  // width
-                    (int)coords.get(3).doubleValue()   // height
+                    (int)coords.get(0).doubleValue(),
+                    (int)coords.get(1).doubleValue(),
+                    (int)coords.get(2).doubleValue(),
+                    (int)coords.get(3).doubleValue()
             );
           } else if (shape.getType().equals("oval")) {
             double cx = coords.get(0);
@@ -226,12 +210,6 @@ public class SwingView extends JFrame implements IPhotoAlbumView {
       }
     }
 
-    /**
-     * Extracts RGB color values from a shape's string representation.
-     *
-     * @param shape The shape whose color is being extracted
-     * @return An array of strings containing RGB color values
-     */
     private String[] extractColor(IShape shape) {
       String str = shape.toString();
       int colorStart = str.lastIndexOf("Color: (") + 8;
@@ -239,12 +217,6 @@ public class SwingView extends JFrame implements IPhotoAlbumView {
       return str.substring(colorStart, colorEnd).split(",");
     }
 
-    /**
-     * Extracts coordinate and dimension data from a shape's string representation.
-     *
-     * @param shape The shape whose data is being extracted
-     * @return A list of doubles containing position and size information
-     */
     private List<Double> extractShapeData(IShape shape) {
       List<Double> numbers = new ArrayList<>();
       String[] lines = shape.toString().split("\n");
@@ -262,33 +234,31 @@ public class SwingView extends JFrame implements IPhotoAlbumView {
       return numbers;
     }
 
-
     @Override
     public Dimension getPreferredSize() {
       return new Dimension(width, height);
     }
   }
 
-  /**
-   * Updates the view to reflect the current snapshot, refreshing both the info label
-   * and the shape display.
-   */
   private void updateView() {
     ISnapshot snapshot = model.getSnapshots().get(currentSnapshotIndex);
-    snapshotInfo.setText(String.format("ID: %s | Description: %s",
-            snapshot.getId(), snapshot.getDescription()));
+    String description = snapshot.getDescription().isEmpty() ?
+            "No description available" : snapshot.getDescription();
+    snapshotInfo.setText(String.format("<html><center>Snapshot %d of %d<br>ID: %s<br>%s</center></html>",
+            currentSnapshotIndex + 1,
+            model.getSnapshots().size(),
+            snapshot.getId(),
+            description));
     drawingPanel.repaint();
   }
 
-  /**
-   * Displays the view and shows the first snapshot if available.
-   */
   @Override
   public void display() {
     setVisible(true);
     if (!model.getSnapshots().isEmpty()) {
       updateView();
+    } else {
+      showMessage("No snapshots available to display.");
     }
   }
 }
-
